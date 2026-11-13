@@ -6,6 +6,8 @@
 [![Stack](https://img.shields.io/badge/stack-Bash%20%7C%20Linux%20%7C%20Nginx-black)](#tecnologias)
 [![Automação](https://img.shields.io/badge/automação-Cron-orange)](#automação)
 
+---
+
 ## Sobre o projeto
 
 O **Nginx Status Monitor** é um projeto de infraestrutura voltado ao monitoramento simples de disponibilidade do serviço Nginx em ambientes Linux.
