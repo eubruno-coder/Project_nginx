@@ -1,207 +1,136 @@
-# ⚙️ Nginx Status Monitor
+# Nginx Status Monitor
 
-> Script Bash para verificação automatizada do serviço Nginx, geração de logs e publicação de um relatório HTML de status.
+> Laboratório Bash para consultar o estado do serviço Nginx em Linux, registrar verificações e gerar um relatório HTML.
 
-[![Status](https://img.shields.io/badge/status-projeto%20técnico-blue)](#status)
+[![Categoria](https://img.shields.io/badge/categoria-infraestrutura-blue)](#objetivo)
 [![Stack](https://img.shields.io/badge/stack-Bash%20%7C%20Linux%20%7C%20Nginx-black)](#tecnologias)
-[![Automação](https://img.shields.io/badge/automação-Cron-orange)](#automação)
+[![Status](https://img.shields.io/badge/status-protótipo%20didático-orange)](#status-atual)
 
 ---
 
-## Sobre o projeto
+## Objetivo
 
-O **Nginx Status Monitor** é um projeto de infraestrutura voltado ao monitoramento simples de disponibilidade do serviço Nginx em ambientes Linux.
+O **Nginx Status Monitor** explora automação de tarefas administrativas em Linux por meio de um script Bash. A proposta é consultar o serviço Nginx, registrar o resultado em arquivos de log e montar uma página HTML simples para consulta.
 
-O script verifica o estado do serviço, registra o resultado em arquivos de log e gera uma página HTML com o histórico das verificações. A execução pode ser automatizada por meio do Cron.
+O projeto serve como exercício de shell scripting, administração de serviços com systemd, permissões de arquivos e geração de relatórios.
 
-O projeto representa uma base didática para práticas de **Linux, Bash scripting, observabilidade e administração de servidores web**.
+## Fluxo pretendido
 
-## Funcionalidades
+```text
+Execução manual ou agendada
+          │
+          ▼
+     Script Bash
+          │
+          ├── systemctl is-active nginx
+          │
+          ├── Registro do resultado
+          │      ├── log ativo
+          │      └── log inativo
+          │
+          ▼
+    Geração de HTML
+          │
+          ▼
+ Diretório servido pelo Nginx
+```
 
-- 🔎 Verificação do status do Nginx via `systemctl`
-- 📝 Registro de status ativo e inativo
-- 🕐 Registro com data e hora
-- 🌐 Geração de relatório HTML
-- 🔄 Atualização periódica do relatório
-- ⏱️ Automação com Cron
-- 📁 Organização dos logs em diretório próprio
-- 🐧 Execução em ambiente Linux
-
-## Tecnologias
+## Tecnologias e conceitos
 
 - Linux
 - Bash
 - Nginx
 - systemd / `systemctl`
-- Cron
-- HTML
+- Cron (para agendamento externo)
+- Logs em arquivos
+- HTML gerado por script
 
-## Fluxo
+## Estrutura observada
 
-```text
-Cron
- │
- ▼
-Script Bash
- │
- ├── systemctl → verifica Nginx
- │
- ├── logs → registra resultado
- │
- └── HTML → gera relatório
-              │
-              ▼
-        Nginx /var/www/html
-```
+O repositório contém um script principal chamado `Project_nginx` e material de apoio em PDF. O README documenta o propósito e o fluxo pretendido; os caminhos de execução ainda estão associados ao ambiente original de desenvolvimento.
 
-## Requisitos
+## Execução e ambiente
 
-- Servidor Linux
-- Bash
-- Nginx instalado e configurado
-- `systemctl` disponível
-- Permissão para escrever nos diretórios utilizados pelo script
-- Cron, caso a execução automática seja desejada
+O script deve ser revisado e adaptado antes de ser executado em outro servidor. Na versão atual, há caminhos absolutos definidos no próprio código:
 
-## Configuração
+- diretório de logs: `/home/bruno/projeto_nginx/logs`;
+- destino do relatório: `/var/www/html/status_nginx.html`.
 
-A implementação original utiliza caminhos de trabalho específicos para logs e publicação do HTML. Em uma implantação real, recomenda-se parametrizar esses caminhos de acordo com o ambiente.
+Esses caminhos não são portáveis. A escrita no diretório servido pelo Nginx pode exigir permissões específicas.
 
-Exemplos de parâmetros utilizados pelo projeto:
-
-```text
-log_dir
-log_ativo
-log_inativo
-html_output
-```
-
-## Execução
-
-Torne o script executável:
+Para inspecionar o serviço manualmente:
 
 ```bash
-chmod +x verificar_nginx.sh
+systemctl is-active nginx
 ```
 
-Execute manualmente:
+Para executar um script Bash após revisar caminhos e permissões:
 
 ```bash
-./verificar_nginx.sh
+chmod +x Project_nginx
+./Project_nginx
 ```
 
-O relatório poderá ser disponibilizado pelo servidor web conforme o diretório configurado para publicação.
+O agendamento por Cron é uma possibilidade de evolução e deve ser configurado somente depois que a execução manual estiver validada no ambiente de destino.
 
-## Automação com Cron
+## Estado atual e limitações conhecidas
 
-Para executar a verificação a cada cinco minutos:
+<badge color="warning">Revisão técnica necessária antes de uso operacional</badge>
 
-```bash
-crontab -e
-```
+A implementação deve ser tratada como protótipo didático, não como monitor de produção. A inspeção do script identificou pontos que precisam ser corrigidos e testados:
 
-Adicione uma entrada equivalente a:
+- a variável de data/hora é definida dentro da função de verificação, mas também é referenciada fora dela;
+- os caminhos de log e publicação estão fixos no código;
+- a geração e a movimentação do HTML dependem de permissões do ambiente;
+- a criação e a verificação dos arquivos de log precisam ser ordenadas para evitar estados inconsistentes;
+- mensagens, tratamento de erros e validação de comandos podem ser fortalecidos;
+- não há testes automatizados documentados.
 
-```cron
-*/5 * * * * /caminho/para/seu/script/verificar_nginx.sh
-```
+Por isso, o README não declara que a execução agendada ou a publicação do relatório estejam homologadas em um ambiente independente.
 
-## Logs
+## Segurança e operação
 
-O projeto trabalha com registros separados para diferentes estados do serviço, permitindo acompanhar o histórico das verificações.
-
-Também é possível direcionar erros de execução para um arquivo específico:
-
-```bash
-./verificar_nginx.sh 2>> /caminho/para/logs/error.log
-```
-
-## Segurança e permissões
-
-O script pode exigir permissões administrativas dependendo da configuração do servidor. Evite conceder privilégios excessivos ao usuário de execução.
-
-A concessão de `sudo` sem senha para comandos administrativos deve ser avaliada cuidadosamente e, quando necessária, limitada ao menor conjunto de comandos possível.
-
-Não coloque senhas, tokens, chaves privadas ou outras credenciais no script ou no repositório.
-
-## Possíveis problemas
-
-### HTML não é atualizado
-
-Verifique:
-
-- permissões do diretório de saída;
-- existência do diretório de logs;
-- execução manual do script;
-- caminho configurado para publicação;
-- erros registrados no log.
-
-### Logs vazios
-
-Confirme se o script possui permissão de escrita e se o `systemctl` consegue consultar o serviço Nginx.
-
-### `systemctl` exige privilégios
-
-Verifique as permissões do usuário e as políticas de `sudo` do ambiente. Evite liberar privilégios administrativos de forma ampla.
-
-## Estrutura esperada
-
-A estrutura exata pode variar conforme os arquivos presentes no ambiente de execução. Conceitualmente:
-
-```text
-Project_nginx/
-├── verificar_nginx.sh
-├── logs/
-│   ├── nginx_status_ativo.log
-│   ├── nginx_status_inativo.log
-│   └── error.log
-├── status_nginx.html
-└── README.md
-```
+- Execute com o menor privilégio possível.
+- Não conceda permissões administrativas amplas apenas para facilitar a escrita de arquivos.
+- Valide cuidadosamente qualquer regra de `sudoers`.
+- Evite inserir credenciais ou dados sensíveis em scripts e logs.
+- Restrinja o acesso ao relatório se ele revelar informações sobre a infraestrutura.
+- Considere rotação e retenção de logs antes de executar continuamente.
 
 ## Roadmap
 
-### V1 — Monitoramento básico
+### V1 — Protótipo de monitoramento
+- [x] Consulta do estado do Nginx por `systemctl`
+- [x] Separação conceitual de logs por estado
+- [x] Geração de relatório HTML
 
-- [x] Verificação do Nginx
-- [x] Logs de status
-- [x] Relatório HTML
-- [x] Automação por Cron
+### V1.1 — Correção e portabilidade
+- [ ] Corrigir escopo e inicialização das variáveis
+- [ ] Parametrizar diretórios e caminhos de saída
+- [ ] Adicionar validação de dependências e permissões
+- [ ] Tratar falhas de `systemctl` e escrita de arquivos
+- [ ] Validar execução manual em uma VM Linux limpa
 
-### V2 — Observabilidade
+### V2 — Automação e observabilidade
+- [ ] Configurar Cron após validação manual
+- [ ] Implementar rotação de logs
+- [ ] Adicionar histórico e indicadores de disponibilidade
+- [ ] Criar alertas para indisponibilidade
+- [ ] Adicionar testes automatizados
 
-- [ ] Histórico visual de disponibilidade
-- [ ] Indicadores de uptime
-- [ ] Dashboard mais completo
-- [ ] Rotação automática de logs
-- [ ] Alertas de indisponibilidade
+## Status atual
 
-### V3 — Infraestrutura
-
-- [ ] Configuração por arquivo `.env` ou equivalente seguro
-- [ ] Execução como serviço dedicado
-- [ ] Integração com ferramentas de monitoramento
-- [ ] Health checks
-- [ ] Métricas estruturadas
-
-## Status
-
-🔧 **Projeto técnico / laboratório de infraestrutura**
-
-O projeto funciona como base para estudos de automação, administração Linux e monitoramento de serviços web.
-
-## Licenciamento
-
-As condições de uso devem ser observadas conforme a licença eventualmente definida no repositório.
+**Protótipo didático em evolução.** O repositório demonstra a ideia e os conceitos utilizados, mas requer correções e validação em ambiente limpo antes de ser considerado uma ferramenta operacional.
 
 ## Autor
 
 Desenvolvido por **Bruno Silva**.
 
-GitHub: `eubruno-coder`
+GitHub: [eubruno-coder](https://github.com/eubruno-coder)
 
 ---
 
 **Projeto:** Nginx Status Monitor  
 **Categoria:** Infraestrutura / Linux / Automação  
-**Status:** Projeto técnico em evolução
+**Linguagem:** Bash  
+**Status:** Protótipo didático — revisão técnica pendente
